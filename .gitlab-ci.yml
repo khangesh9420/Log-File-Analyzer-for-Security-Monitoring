@@ -8,7 +8,9 @@ prepare:
   script:
     - echo "Preparing the environment"
     - apt-get update
-    - apt-get install -y cmake g++ python3-pip
+    - apt-get install -y cmake g++ python3-pip python3-venv
+    - python3 -m venv venv
+    - . venv/bin/activate
     - pip install conan
   only:
     - main
@@ -17,8 +19,8 @@ build:
   image: ubuntu:latest
   script:
     - echo "Building the project"
-    - conan install . --build=missing  # Install dependencies using Conan
-    - cmake .                         # Generate build system with CMake
-    - make                            # Build the project with Make
+    - conan install . --build=missing  
+    - cmake .                         
+    - make                           
   only:
     - main
