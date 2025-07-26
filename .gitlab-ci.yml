@@ -56,11 +56,18 @@ dependency-check:
   image: owasp/dependency-check
   script:
     - mkdir -p report
-    - dependency-check.sh --project "LogAnalyzer" --scan src --format HTML --out report
+    - dependency-check.sh \
+        --project "LogAnalyzer" \
+        --scan src \
+        --format HTML \
+        --out report
+    - ls -R report  # Debug: show what's in the report dir
   artifacts:
     paths:
       - report/dependency-check-report.html
     when: always
   only:
     - main
+
+
 
