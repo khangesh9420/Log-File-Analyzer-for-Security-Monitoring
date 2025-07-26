@@ -1,0 +1,14 @@
+stages:
+  - prepare
+  - build
+
+# Prepare stage: Install dependencies and set up the environment
+prepare:
+  image: ubuntu:latest
+  script:
+    - echo "Preparing the environment"
+    - apt-get update
+    - apt-get install -y cmake g++ python3-pip
+    - pip install conan
+  only:
+    - master
