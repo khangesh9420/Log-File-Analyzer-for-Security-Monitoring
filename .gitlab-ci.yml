@@ -1,8 +1,6 @@
 stages:
   - prepare
-  - build
 
-# Prepare stage: Install dependencies and set up the environment
 prepare:
   image: ubuntu:latest
   script:
