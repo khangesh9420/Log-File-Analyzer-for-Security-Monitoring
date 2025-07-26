@@ -16,9 +16,6 @@ build:
   image: ubuntu:latest
   script:
     - echo "Building the project"
-    - apt-get update
-    - apt-get install -y cmake g++ python3-pip
-    - pip install conan
     - conan install . --build=missing  # Install dependencies using Conan
     - cmake .                         # Generate build system with CMake
     - make                            # Build the project with Make
