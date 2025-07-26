@@ -43,7 +43,8 @@ sonarqube:
   script:
     - sonar-scanner
         -Dsonar.projectKey=LogAnalyzer
-        -Dsonar.sources=src
+        -Dsonar.sources=src,include 
+        -Dsonar.language=cpp
         -Dsonar.host.url=http://sonarqube.khangesh.store/
         -Dsonar.token=${SONAR_TOKEN}
   only:
