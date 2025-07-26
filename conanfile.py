@@ -1,6 +1,5 @@
 from conan import ConanFile
 from conan.tools.cmake import CMake
-from conan.tools.files import get
 
 class LogFileAnalyzerConan(ConanFile):
     name = "LogFileAnalyzer"
@@ -13,17 +12,11 @@ class LogFileAnalyzerConan(ConanFile):
     generators = "CMakeToolchain", "CMakeDeps"
     exports_sources = "*"
 
-    # Declare dependencies
     requires = (
         "fmt/7.1.3",
         "spdlog/1.8.5",
         "libcurl/7.87.0"
     )
-
-    def configure(self):
-        if self.settings.compiler == "gcc":
-            self.options["libcurl"].shared = True
-            self.options["spdlog"].header_only = True
 
     def build(self):
         cmake = CMake(self)
