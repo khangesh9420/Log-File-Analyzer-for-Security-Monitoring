@@ -1,47 +1,32 @@
 stages:
-  - prepare
   - build
-
-prepare:
-  stage: prepare
-  image: ubuntu:latest
-  cache:
-    paths:
-      - .conan/data  # cache Conan dependencies
-  script:
-    - echo "Preparing the environment"
-    - apt-get update
-    - apt-get install -y cmake g++ python3-pip python3-venv
-    - python3 -m venv venv
-    - . venv/bin/activate
-    - pip install "conan<2.0"
-    - conan user  # optional: initialize remote
-    - conan install . --build=missing
-    - echo "Conan install complete"
-  artifacts:
-    paths:
-      - build/        # optional: if you want to share built files
-      - conanbuildinfo.cmake  # or similar
-    expire_in: 1h
-  only:
-    - main
 
 build:
   stage: build
   image: ubuntu:latest
   cache:
+    key: conan-cache
     paths:
-      - .conan/data  # reuse Conan cache
+      - .conan2/data
+      - .conan2/p
   script:
-    - echo "Building the project"
     - apt-get update
     - apt-get install -y cmake g++ python3-pip python3-venv
     - python3 -m venv venv
     - . venv/bin/activate
-    - pip install "conan<2.0"
-    - conan user
-    - conan install . --build=missing
-    - cmake .
-    - make
+
+    # Install Conan 2.x
+    - pip install "conan>=2.0"
+
+    # Detect profile (ensures compiler/os/build_type/etc. are set)
+    - conan profile detect --force
+
+    # Install dependencies and generate toolchain
+    - conan install . --output-folder=build --build=missing
+
+    # Configure and build with CMake using Conan-generated toolchain
+    - cd build
+    - cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake
+    - cmake --build .
   only:
     - main
