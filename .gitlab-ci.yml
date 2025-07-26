@@ -28,5 +28,9 @@ build:
     - cd build
     - cmake .. -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
     - cmake --build .
+  artifacts:
+    paths:
+      - build/LogFileAnalyzer  # Adjust the path if your binary is elsewhere
+    expire_in: 1 week          # Optional: artifact retention duration
   only:
     - main
