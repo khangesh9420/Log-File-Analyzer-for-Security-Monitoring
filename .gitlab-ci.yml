@@ -1,5 +1,7 @@
 stages:
   - build
+  - test
+  - scan
 
 build:
   stage: build
