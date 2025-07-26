@@ -34,3 +34,34 @@ build:
     expire_in: 1 week          # Optional: artifact retention duration
   only:
     - main
+  
+sonarqube:
+  stage: test
+  image: eclipse-temurin:17-jdk
+  variables:
+    PATH: "$SONAR_SCANNER_HOME/sonar-scanner-$SONAR_SCANNER_VERSION-linux/bin:$PATH"
+  script:
+    - apt-get update && apt-get install -y unzip curl
+    - curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_VERSION}-linux.zip
+    - unzip sonar-scanner.zip -d $SONAR_SCANNER_HOME
+    - sonar-scanner --version
+
+    - sonar-scanner
+        -Dsonar.projectKey=LogAnalyzer
+        -Dsonar.sources=src
+        -Dsonar.cfamily.build-wrapper-output=bw-output
+        -Dsonar.host.url=-Dsonar.host.url=http://sonarqube.khangesh.store/
+        -Dsonar.login=${SONAR_TOKEN}
+  only:
+    - main
+
+dependency-check:
+  stage: scan
+  image: owasp/dependency-check
+  script:
+    - dependency-check.sh --project LogAnalyzer --scan src --format HTML --out report
+  artifacts:
+    paths:
+      - report/dependency-check-report.html
+  only:
+    - main
