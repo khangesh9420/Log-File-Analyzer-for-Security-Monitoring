@@ -1,4 +1,4 @@
-#include "loganalyzer.h"
+#include "LogAnalyzer.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
