@@ -1,4 +1,4 @@
-#include "LogAnalyzer.h"
+#include "loganalyzer.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -31,4 +31,23 @@ LogEntry LogAnalyzer::parseLogLine(const std::string& line) {
 
 void LogAnalyzer::checkFailedLoginAttempts() {
     for (const auto& entry : logs) {
-        if (entry.action == "FA
+        if (entry.action == "FAIL") {
+            failedLoginAttempts[entry.ipAddress]++;
+        }
+    }
+}
+
+void LogAnalyzer::checkSuspiciousIPs() {
+    for (const auto& [ip, count] : failedLoginAttempts) {
+        if (count >= 3) {
+            suspiciousIPCount[ip] = count;
+        }
+    }
+}
+
+void LogAnalyzer::printReport() {
+    std::cout << "Suspicious IPs:\n";
+    for (const auto& [ip, count] : suspiciousIPCount) {
+        std::cout << ip << " => " << count << " failed attempts\n";
+    }
+}
