@@ -45,7 +45,7 @@ sonarqube:
         -Dsonar.projectKey=LogAnalyzer
         -Dsonar.sources=src
         -Dsonar.host.url=http://sonarqube.khangesh.store/
-        -Dsonar.login=${SONAR_TOKEN}
+        -Dsonar.token=${SONAR_TOKEN}
   only:
     - main
 
