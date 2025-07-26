@@ -30,6 +30,7 @@ build:
     - apt-get update
     - apt-get install -y python3-venv
     - . venv/bin/activate
+    - conan profile detect
     - conan install . --build=missing
     - cmake .
     - make
