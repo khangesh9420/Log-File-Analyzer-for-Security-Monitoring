@@ -1,9 +1,9 @@
 stages:
   - prepare
-  - test
   - build
 
 prepare:
+  stage: prepare
   image: ubuntu:latest
   script:
     - echo "Preparing the environment"
@@ -12,15 +12,26 @@ prepare:
     - python3 -m venv venv
     - . venv/bin/activate
     - pip install conan
+    - echo "Conan installed"
+  artifacts:
+    paths:
+      - venv/  # Save the virtual environment to be used by build
+    expire_in: 1h
   only:
     - main
 
 build:
+  stage: build
   image: ubuntu:latest
+  dependencies:
+    - prepare
   script:
     - echo "Building the project"
-    - conan install . --build=missing  
-    - cmake .                         
-    - make                           
+    - apt-get update
+    - apt-get install -y python3-venv
+    - . venv/bin/activate
+    - conan install . --build=missing
+    - cmake .
+    - make
   only:
     - main
