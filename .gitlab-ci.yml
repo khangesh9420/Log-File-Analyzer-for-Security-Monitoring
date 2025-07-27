@@ -57,18 +57,17 @@ dependency-check:
   script:
     - echo "🔍 Creating report directory..."
     - mkdir -p owasp-report
-
     - echo "🚀 Running OWASP Dependency Check..."
-    - /usr/share/dependency-check/bin/dependency-check.sh \
-        --project "LogAnalyzer" \
-        --scan src \
-        --format HTML \
-        --out owasp-report \
-        --prettyPrint \
-        --log owasp-report/scan.log
-
-    - echo "📂 Listing report directory:"
-    - ls -R owasp-report || echo "⚠️ Report folder not found!"
+    - >
+      /usr/share/dependency-check/bin/dependency-check.sh
+      --project "LogAnalyzer"
+      --scan "src"
+      --format "HTML"
+      --out "owasp-report"
+      --prettyPrint
+      --log "owasp-report/scan.log"
+    - echo "📂 Contents of report folder:"
+    - ls -l owasp-report || echo "⚠️ Report folder not found!"
   artifacts:
     paths:
       - owasp-report
