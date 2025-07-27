@@ -59,19 +59,15 @@ sca-fossa:
   stage: scan
   image: ubuntu:latest
   before_script:
-    - apt-get update && apt-get install -y curl python3 python3-pip python3-venv bash
+    - apt-get update
+    - apt-get install -y curl python3 python3-pip python3-venv bash
     - python3 -m venv venv
-    - . venv/bin/activate
-    - ./venv/bin/pip install --cache-dir=.pip-cache "conan>=2.0"
-    - curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh | bash
+    - . venv/bin/activate && ./venv/bin/pip install --cache-dir=.pip-cache "conan>=2.0"
+    - curl -H "Cache-Control: no-cache" https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh | bash
   script:
     - echo "🔧 Generating FOSSA-compatible deps file..."
     - curl -sSLo make_fossa_deps_conan.py https://raw.githubusercontent.com/fossas/fossa-cli/master/docs/walkthroughs/make_fossa_deps_conan.py
     - ./venv/bin/python make_fossa_deps_conan.py > fossa-deps.yml
-
-    # Optional: FOSSA init if using a config file
-    # - fossa init
-
     - echo "🚀 Running FOSSA scan..."
     - fossa analyze --detect-vendored 2>&1 | tee fossa-analyze.log
     - fossa test --fail-on HIGH 2>&1 | tee fossa-test.log
