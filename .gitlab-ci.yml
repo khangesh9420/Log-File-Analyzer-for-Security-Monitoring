@@ -62,7 +62,7 @@ sca-ort:
     - apt-get update && apt-get install -y curl unzip
   script:
     - echo "📥 Downloading OSS Review Toolkit CLI..."
-    - curl -L -o ort-cli.jar https://github.com/oss-review-toolkit/ort/releases/latest/download/ort-cli.jar
+    - curl -L -o ort-cli.jar https://github.com/oss-review-toolkit/ort/releases/download/v0.1.278/ort-cli-0.1.278.jar
 
     - echo "🔍 Analyzing dependencies using ORT..."
     - java -jar ort-cli.jar analyze -f Conan -i . -o ort-output
