@@ -23,10 +23,10 @@ build:
     # Detect profile (ensures compiler/os/build_type/etc. are set)
     - conan profile detect --force
 
-    # Lock dependencies
-    - conan lock create . --lockfile=conan.lock --profile=default
+    # Lock dependencies and generate a new lockfile
+    - conan lock create . --lockfile-out=conan.lock --profile=default
 
-    # Install dependencies and generate toolchain using lockfile
+    # Install dependencies using the newly created lockfile
     - conan install . --lockfile=conan.lock --output-folder=build --build=missing
 
     # Configure and build with CMake using Conan-generated toolchain
