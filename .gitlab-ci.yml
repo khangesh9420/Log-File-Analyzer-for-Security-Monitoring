@@ -68,9 +68,15 @@ sca-fossa:
       bash -c "curl -H 'Cache-Control: no-cache'
       https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh | bash"
   script:
-    - echo "🔧 Generating FOSSA-compatible deps file..."
+    - echo "🔧 Downloading helper script..."
     - curl -sSLo make_fossa_deps_conan.py https://raw.githubusercontent.com/fossas/fossa-cli/master/docs/walkthroughs/make_fossa_deps_conan.py
+
+    - echo "🔧 Patching script to use venv Conan..."
+    - sed -i 's/cmd = \["conan"/cmd = ["\.\/venv\/bin\/conan"/' make_fossa_deps_conan.py
+
+    - echo "📄 Generating fossa-deps.yml..."
     - ./venv/bin/python make_fossa_deps_conan.py > fossa-deps.yml
+
     - echo "🚀 Running FOSSA scan..."
     - fossa analyze --detect-vendored 2>&1 | tee fossa-analyze.log
     - fossa test --fail-on HIGH 2>&1 | tee fossa-test.log
@@ -83,5 +89,6 @@ sca-fossa:
     expire_in: 1 week
   only:
     - main
+
 
 
