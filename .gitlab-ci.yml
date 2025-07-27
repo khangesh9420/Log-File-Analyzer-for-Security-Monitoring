@@ -23,8 +23,11 @@ build:
     # Detect profile (ensures compiler/os/build_type/etc. are set)
     - conan profile detect --force
 
-    # Install dependencies and generate toolchain
-    - conan install . --output-folder=build --build=missing
+    # Lock dependencies
+    - conan lock create . --lockfile=conan.lock --profile=default
+
+    # Install dependencies and generate toolchain using lockfile
+    - conan install . --lockfile=conan.lock --output-folder=build --build=missing
 
     # Configure and build with CMake using Conan-generated toolchain
     - cd build
@@ -32,48 +35,46 @@ build:
     - cmake --build .
   artifacts:
     paths:
-      - build/LogFileAnalyzer  # Adjust the path if your binary is elsewhere
-    expire_in: 1 week          # Optional: artifact retention duration
+      - build/LogFileAnalyzer
+    expire_in: 1 week
   only:
     - main
-  
+
 sonarqube:
   stage: test
   image: sonarsource/sonar-scanner-cli:5
   script:
-    - sonar-scanner
-        -Dsonar.projectKey=LogAnalyzer
-        -Dsonar.sources=. 
-        -Dsonar.exclusions=build/** 
-        -Dsonar.language=cpp
-        -Dsonar.host.url=http://sonarqube.khangesh.store/
+    - sonar-scanner \
+        -Dsonar.projectKey=LogAnalyzer \
+        -Dsonar.sources=. \
+        -Dsonar.exclusions=build/** \
+        -Dsonar.language=cpp \
+        -Dsonar.host.url=http://sonarqube.khangesh.store/ \
         -Dsonar.token=${SONAR_TOKEN}
   only:
     - main
 
-dependency-check:
-  image: gradle:8-jdk17  # Java required for Dependency-Check
+sca-ort:
   stage: scan
+  image: eclipse-temurin:17
   before_script:
-    - apt-get update && apt-get install -y unzip wget
-    - echo "📦 Downloading OWASP Dependency-Check CLI..."
-    - wget https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.0/dependency-check-8.4.0-release.zip
-    - unzip dependency-check-8.4.0-release.zip -d /opt
-    - chmod +x /opt/dependency-check/bin/dependency-check.sh
+    - apt-get update && apt-get install -y curl unzip
   script:
-    - echo "🛠 Running Dependency-Check Scan..."
-    - mkdir -p owasp-report
-    - /opt/dependency-check/bin/dependency-check.sh \
-        --project "LogAnalyzer" \
-        --scan src \
-        --format "HTML" \
-        --out owasp-report \
-        --prettyPrint
-    - echo "📁 Listing generated report files:"
-    - ls -lh owasp-report
+    - echo "📥 Downloading OSS Review Toolkit CLI..."
+    - curl -L -o ort-cli.jar https://github.com/oss-review-toolkit/ort/releases/latest/download/ort-cli.jar
+
+    - echo "🔍 Analyzing dependencies using ORT..."
+    - java -jar ort-cli.jar analyze -f Conan -i . -o ort-output
+
+    - echo "📄 Generating ORT reports..."
+    - java -jar ort-cli.jar report -i ort-output/analyzer-result.yml -o ort-report -f StaticHtml
+
+    - echo "📁 Report contents:"
+    - ls -lh ort-report
   artifacts:
     paths:
-      - owasp-report
+      - ort-report
     when: always
+    expire_in: 1 week
   only:
     - main
