@@ -78,7 +78,8 @@ sca-fossa:
     - sed -i 's/cmd = \["conan"/cmd = ["\.\/venv\/bin\/conan"/' make_fossa_deps_conan.py
 
     - echo "📄 Generating graph JSON file..."
-    - ./venv/bin/conan graph info . -f json -c tools.build:download_source=True > conan_graph.json
+    - ./venv/bin/conan graph info . -f json --out-file conan_graph.json -c tools.build:download_source=True
+                
 
     - echo "📄 Generating fossa-deps.yml..."
     - ./venv/bin/python make_fossa_deps_conan.py conan_graph.json > fossa-deps.yml
