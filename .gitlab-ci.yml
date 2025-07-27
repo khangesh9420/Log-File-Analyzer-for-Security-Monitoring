@@ -55,12 +55,11 @@ dependency-check:
   stage: scan
   image: owasp/dependency-check:latest
   script:
-    - echo "🔍 Starting OWASP Dependency Check for LogAnalyzer"
-    - echo "📁 Creating report output directory..."
+    - echo "🔍 Creating report directory..."
     - mkdir -p owasp-report
 
-    - echo "🚀 Running dependency-check.sh with verbose logging..."
-    - dependency-check.sh \
+    - echo "🚀 Running OWASP Dependency Check..."
+    - /usr/share/dependency-check/bin/dependency-check.sh \
         --project "LogAnalyzer" \
         --scan src \
         --format HTML \
@@ -68,21 +67,11 @@ dependency-check:
         --prettyPrint \
         --log owasp-report/scan.log
 
-    - echo "📄 Dependency Check completed."
-    - echo "📂 Listing files in owasp-report directory:"
-    - ls -R owasp-report || echo "⚠️ Report directory not found or empty!"
-
-    - echo "📑 Printing log output from scan.log:"
-    - cat owasp-report/scan.log || echo "⚠️ Log file not found!"
-    
-    - echo "✅ Dependency check job finished."
+    - echo "📂 Listing report directory:"
+    - ls -R owasp-report || echo "⚠️ Report folder not found!"
   artifacts:
     paths:
       - owasp-report
     when: always
   only:
     - main
-
-
-
-
