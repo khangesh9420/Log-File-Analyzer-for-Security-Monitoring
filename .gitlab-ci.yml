@@ -36,6 +36,7 @@ build:
   artifacts:
     paths:
       - build/LogFileAnalyzer
+      - conan.lock 
     expire_in: 1 week
   only:
     - main
