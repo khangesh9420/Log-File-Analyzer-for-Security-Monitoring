@@ -59,15 +59,15 @@ sca-fossa:
   stage: scan
   image: ubuntu:latest
   before_script:
-    - apt-get update && apt-get install -y curl python3 python3-pip bash
-    - pip3 install --cache-dir=.pip-cache "conan>=2.0"
-    - >
-      bash -c "curl -H 'Cache-Control: no-cache'
-      https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh | bash"
+    - apt-get update && apt-get install -y curl python3 python3-pip python3-venv bash
+    - python3 -m venv venv
+    - . venv/bin/activate
+    - ./venv/bin/pip install --cache-dir=.pip-cache "conan>=2.0"
+    - curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh | bash
   script:
     - echo "🔧 Generating FOSSA-compatible deps file..."
     - curl -sSLo make_fossa_deps_conan.py https://raw.githubusercontent.com/fossas/fossa-cli/master/docs/walkthroughs/make_fossa_deps_conan.py
-    - python3 make_fossa_deps_conan.py > fossa-deps.yml
+    - ./venv/bin/python make_fossa_deps_conan.py > fossa-deps.yml
 
     # Optional: FOSSA init if using a config file
     # - fossa init
@@ -84,3 +84,4 @@ sca-fossa:
     expire_in: 1 week
   only:
     - main
+
