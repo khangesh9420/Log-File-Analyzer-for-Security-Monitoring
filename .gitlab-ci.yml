@@ -52,22 +52,25 @@ sonarqube:
     - main
 
 dependency-check:
+  image: gradle:8-jdk17  # Java required for Dependency-Check
   stage: scan
-  image: owasp/dependency-check:latest
+  before_script:
+    - apt-get update && apt-get install -y unzip wget
+    - echo "📦 Downloading OWASP Dependency-Check CLI..."
+    - wget https://github.com/jeremylong/DependencyCheck/releases/download/v8.4.0/dependency-check-8.4.0-release.zip
+    - unzip dependency-check-8.4.0-release.zip -d /opt
+    - chmod +x /opt/dependency-check/bin/dependency-check.sh
   script:
-    - echo "🔍 Creating report directory..."
+    - echo "🛠 Running Dependency-Check Scan..."
     - mkdir -p owasp-report
-    - echo "🚀 Running OWASP Dependency Check..."
-    - >
-      /usr/share/dependency-check/bin/dependency-check.sh
-      --project "LogAnalyzer"
-      --scan "src"
-      --format "HTML"
-      --out "owasp-report"
-      --prettyPrint
-      --log "owasp-report/scan.log"
-    - echo "📂 Contents of report folder:"
-    - ls -l owasp-report || echo "⚠️ Report folder not found!"
+    - /opt/dependency-check/bin/dependency-check.sh \
+        --project "LogAnalyzer" \
+        --scan src \
+        --format "HTML" \
+        --out owasp-report \
+        --prettyPrint
+    - echo "📁 Listing generated report files:"
+    - ls -lh owasp-report
   artifacts:
     paths:
       - owasp-report
