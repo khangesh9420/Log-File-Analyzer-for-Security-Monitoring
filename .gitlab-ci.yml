@@ -53,24 +53,23 @@ sonarqube:
 
 dependency-check:
   stage: scan
-  image: owasp/dependency-check
+  image: owasp/dependency-check:latest
   script:
-    - mkdir -p report
+    - mkdir -p owasp-report
     - dependency-check.sh \
         --project "LogAnalyzer" \
         --scan src \
         --format HTML \
-        --out report
-    - echo "Generated report files:"
-    - ls -lh report
+        --out owasp-report
+    - echo "Listing contents of owasp-report:"
+    - ls -R owasp-report
   artifacts:
     paths:
-      - report/
+      - owasp-report
     when: always
     expire_in: 7 days
   only:
     - main
-
 
 
 
