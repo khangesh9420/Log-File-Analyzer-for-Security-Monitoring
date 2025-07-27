@@ -60,16 +60,33 @@ sca-fossa:
   stage: scan
   image: ubuntu:latest
   before_script:
+    # 🧰 Install system tools and C++ build essentials
     - apt-get update
-    - apt-get install -y curl cmake g++ python3 python3-pip python3-venv bash ninja-build pkg-config autoconf automake libtool m4 meson
+    - apt-get install -y curl git cmake g++ python3 python3-pip python3-venv bash ninja-build pkg-config autoconf automake libtool m4 meson
+
+    # 🐍 Create and activate Python virtual environment
     - python3 -m venv venv
+
+    # 📦 Install Conan (>= 2.x) into venv
     - ./venv/bin/pip install --cache-dir=.pip-cache "conan>=2.0"
+
+    # 🛠 Detect and configure Conan profile
     - ./venv/bin/conan profile detect --force
-    - ./venv/bin/conan lock create . --lockfile-out=conan.lock --profile=default
+
+    # 🔐 Create Conan lockfile (skip error if exists)
+    - |
+      if [ ! -f conan.lock ]; then
+        ./venv/bin/conan lock create . --lockfile-out=conan.lock --profile=default
+      fi
+
+    # 📥 Install Conan dependencies (build if missing)
     - ./venv/bin/conan install . --lockfile=conan.lock --output-folder=build --build=missing
+
+    # 🔽 Install FOSSA CLI
     - >
       bash -c "curl -H 'Cache-Control: no-cache'
       https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh | bash"
+
   script:
     - echo "🔧 Downloading helper script..."
     - curl -sSLo make_fossa_deps_conan.py https://raw.githubusercontent.com/fossas/fossa-cli/master/docs/walkthroughs/make_fossa_deps_conan.py
@@ -83,6 +100,7 @@ sca-fossa:
     - echo "🚀 Running FOSSA scan..."
     - fossa analyze --detect-vendored 2>&1 | tee fossa-analyze.log
     - fossa test --fail-on HIGH 2>&1 | tee fossa-test.log
+
   artifacts:
     paths:
       - fossa-deps.yml
@@ -90,5 +108,6 @@ sca-fossa:
       - fossa-test.log
     when: always
     expire_in: 1 week
+
   only:
     - main
