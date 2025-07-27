@@ -69,6 +69,7 @@ sca-fossa:
     - python3 -m venv venv
     - ./venv/bin/pip install --cache-dir=.pip-cache "conan>=2.0"
     - ./venv/bin/conan profile detect --force
+    - ./venv/bin/conan install . --lockfile=conan.lock --output-folder=build --build=missing
     - ./venv/bin/conan install . --lockfile=conan.lock --output-folder=build || echo "Dependencies already installed"
     - >
       bash -c "curl -H 'Cache-Control: no-cache'
