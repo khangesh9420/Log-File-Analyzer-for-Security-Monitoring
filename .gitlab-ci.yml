@@ -55,27 +55,23 @@ sonarqube:
   only:
     - main
 
-sca-ort:
+sca-fossa:
   stage: scan
-  image: eclipse-temurin:17
+  image: ubuntu:latest
   before_script:
-    - apt-get update && apt-get install -y curl unzip
+    - apt-get update && apt-get install -y curl python3 python3-pip
+    - pip3 install "conan>=2.0"
+    - curl -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/fossas/fossa-cli/master/install-latest.sh | bash
   script:
-    - echo "📥 Downloading OSS Review Toolkit CLI..."
-    - curl -L -o ort-cli.jar https://github.com/oss-review-toolkit/ort/releases/download/v0.1.278/ort-cli-0.1.278.jar
-
-    - echo "🔍 Analyzing dependencies using ORT..."
-    - java -jar ort-cli.jar analyze -f Conan -i . -o ort-output
-
-    - echo "📄 Generating ORT reports..."
-    - java -jar ort-cli.jar report -i ort-output/analyzer-result.yml -o ort-report -f StaticHtml
-
-    - echo "📁 Report contents:"
-    - ls -lh ort-report
+    - echo "🔧 Generating FOSSA-compatible deps file..."
+    - curl -sSLo make_fossa_deps_conan.py https://raw.githubusercontent.com/fossas/fossa-cli/master/docs/walkthroughs/make_fossa_deps_conan.py
+    - python3 make_fossa_deps_conan.py
+    - echo "🚀 Running FOSSA scan..."
+    - fossa analyze --detect-vendored
+    - fossa test --fail-on HIGH
   artifacts:
     paths:
-      - ort-report
-    when: always
+      - fossa-deps.yml
     expire_in: 1 week
   only:
     - main
